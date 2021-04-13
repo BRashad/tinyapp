@@ -38,3 +38,15 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  let shortUrl = generateRandomString();
+  urlDatabase[shortUrl] = req.body.longURL;
+  res.redirect(`/urls/${shortUrl}`);        
+});
+
+
+const generateRandomString = () => {
+  let r = Math.random().toString(36).substring(6);
+  return r;
+}
+
