@@ -78,3 +78,9 @@ app.post("/logout", (req, res) => {
 
   res.redirect('/urls');
 });
+
+
+app.get('/register',(req,res)=>{
+  
+  res.render("register");
+});
