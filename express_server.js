@@ -69,18 +69,43 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
-  
   res.redirect('/urls');
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie('username');
-
   res.redirect('/urls');
 });
 
 
+// user database
+const users = { 
+  "qwerqwetw": {
+    id: "user1RandomID", 
+    email: "user1@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+
 app.get('/register',(req,res)=>{
-  
   res.render("register");
+});
+
+
+//user registration handler
+app.post('/register',(req,res)=>{
+  let userRandomId = generateRandomString();
+  const createUser = { id: userRandomId, email: req.body.email, password: req.body.password };
+  users[userRandomId] = createUser;
+  console.log(users[userRandomId])
+  res.cookie("user_Id", userRandomId);
+  res.render("register");
+  res.redirect('/urls');
+  
 });
