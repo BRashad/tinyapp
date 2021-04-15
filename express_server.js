@@ -74,10 +74,10 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls');
 });
 
-app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
-});
+// app.post("/login", (req, res) => {
+//   res.cookie('user_Id', req.body.username);
+//   res.redirect('/urls');
+// });
 
 app.post("/logout", (req, res) => {
   res.clearCookie('user_Id');
@@ -99,9 +99,7 @@ const users = {
   }
 }
 
-
 //register page rendering
-
 app.get('/register',(req,res)=>{
   res.render("register");
 });
@@ -115,7 +113,6 @@ const emailLookUp = (email) => {
   }
   return false;
 }
-
 
 //user registration handler
 app.post('/register',(req,res)=>{
@@ -134,3 +131,23 @@ app.post('/register',(req,res)=>{
   res.cookie("user_Id", userRandomId);
   res.redirect('/urls');
 });
+
+//login page rendering
+app.get('/login',(req,res)=>{
+  res.render('login');
+});
+
+app.post('/login', (req, res) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+
+  for (let i in users) {
+    if(users[i]['email'] === userEmail && users[i]['password'] === userPassword) {
+    
+      res.cookie("user_Id", users[i]['id']);
+      res.redirect("/urls");
+      return;
+    } 
+  }
+  res.redirect("/login");
+})
