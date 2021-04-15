@@ -14,10 +14,20 @@
       <h4>
         <% if ('undefined' !== typeof currentUser) { %>
         <%= currentUser.email %>
-        
+        <% } else {%> 
+          <form class="form-inline" method="GET" action="/register">
+            <button class="btn btn-primary my-2 my-sm-0" type="submit">Register</button>
+          </form>
+          <form class="form-inline" method="GET" action="/login">
+            <button class="btn btn-primary my-2 my-sm-0" type="submit">Login</button>
+          </form>
         <% } %>
       </h4>
     </span>
+    
+
+   
+
     <% if ('undefined' !== typeof currentUser) { %>
     <form class="form-inline" method="POST" action="/logout">
       <button class="btn btn-primary my-2 my-sm-0" type="submit">Logout</button>
