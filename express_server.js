@@ -108,7 +108,7 @@ const emailLookUp = (email) => {
   
   for (let i in users) {
     if(users[i]['email'] === email) {
-      return true;    
+      return users[i];    
     }
   }
   return false;
@@ -140,14 +140,19 @@ app.get('/login',(req,res)=>{
 app.post('/login', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-
-  for (let i in users) {
-    if(users[i]['email'] === userEmail && users[i]['password'] === userPassword) {
-    
-      res.cookie("user_Id", users[i]['id']);
-      res.redirect("/urls");
-      return;
-    } 
+   
+  const user = emailLookUp(userEmail);
+  if(!user) {
+    res.status(403).send({ error: "Enter valid email" });
+    res.redirect("/login");
+    return;
   }
-  res.redirect("/login");
-})
+  if (user['email'] && user['password'] !== userPassword) {
+    res.status(403).send({ error: "Enter valid password" });
+    res.redirect("/login");
+    return;
+  }
+  res.cookie("user_Id", user['id']);
+  res.redirect("/urls");
+
+  })
