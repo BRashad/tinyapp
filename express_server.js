@@ -22,7 +22,9 @@ app.listen(PORT, () => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  const userId = req.cookies['user_Id'];
+  const currentUser = users[userId];
+  const templateVars = { urls: urlDatabase, currentUser: currentUser };
   res.render("urls_index", templateVars);
 });
 
@@ -31,11 +33,16 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", {username: req.cookies["username"]});
+  const userId = req.cookies['user_Id'];
+  const currentUser = users[userId];
+  const templateVars = { currentUser: currentUser };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL, username: req.cookies["username"] };
+  const userId = req.cookies['user_Id'];
+  const currentUser = users[userId];
+  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL, currentUser: currentUser };
   res.render("urls_show", templateVars);
 });
 
@@ -73,7 +80,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_Id');
   res.redirect('/urls');
 });
 
@@ -93,19 +100,37 @@ const users = {
 }
 
 
+//register page rendering
+
 app.get('/register',(req,res)=>{
   res.render("register");
 });
 
+const emailLookUp = (email) => {
+  
+  for (let i in users) {
+    if(users[i]['email'] === email) {
+      return true;    
+    }
+  }
+  return false;
+}
+
 
 //user registration handler
 app.post('/register',(req,res)=>{
+
+  if (req.body.email === '' || req.body.password ==='') {
+    res.status(400).send({ error: "Enter valid username or password" });
+  } 
+  if (emailLookUp(req.body.email)) {
+    res.status(400).send({ error: "Email already exist. Please enter valid email" });
+  }
+
   let userRandomId = generateRandomString();
   const createUser = { id: userRandomId, email: req.body.email, password: req.body.password };
   users[userRandomId] = createUser;
-  console.log(users[userRandomId])
-  res.cookie("user_Id", userRandomId);
-  res.render("register");
-  res.redirect('/urls');
   
+  res.cookie("user_Id", userRandomId);
+  res.redirect('/urls');
 });

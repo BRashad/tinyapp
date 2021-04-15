@@ -12,12 +12,12 @@
     </div>
     <span class="navbar-brand">
       <h4>
-        <% if ('undefined' !== typeof username) { %>
-        <%= username %>
+        <% if ('undefined' !== typeof currentUser) { %>
+        <%= currentUser.email %>
         <% } %>
       </h4>
     </span>
-    <% if ('undefined' !== typeof username) { %>
+    <% if ('undefined' !== typeof currentUser) { %>
       <form class="form-inline" method="POST" action="/logout">
         <button class="btn btn-primary my-2 my-sm-0" type="submit">Logout</button>
       </form>
