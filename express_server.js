@@ -164,7 +164,9 @@ app.post('/login', (req, res) => {
 
   const urlsForUser = (id) => {
     for (let i in users) {
+      
       if(users[i]['id'] === id) {
+        console.log("urlsForUser",users[i]['id'] === id)
         return users[i];    
       }
     }
