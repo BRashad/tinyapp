@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
+const helper = require('./helper');
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
@@ -130,26 +132,7 @@ app.get('/register',(req,res)=>{
   return res.render("register");
 });
 
-//email look up function
-// const emailLookUp = (email) => {
-  
-//   for (let i in users) {
-//     if (users[i]['email'] === email) {
-//       return users[i];
-//     }
-//   }
-//   return false;
-// };
 
-const emailLookUp = (email, database) => {
-  
-  for (let user in database) {
-    if (database[user]['email'] === email) {
-      return database[user];
-    }
-  }
-  return false;
-};
 
 //user registration handler
 app.post('/register',(req,res)=>{
@@ -157,7 +140,7 @@ app.post('/register',(req,res)=>{
   if (req.body.email === '' || req.body.password === '') {
     return res.status(400).send({ error: "Enter valid username or password" });
   }
-  if (emailLookUp(req.body.email, users)) {
+  if (helper.emailLookUp(req.body.email, users)) {
     return res.status(400).send({ error: "Email already exist. Please enter valid email" });
   }
 
@@ -183,7 +166,7 @@ app.post('/login', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
    
-  const user = emailLookUp(userEmail, users);
+  const user = helper.emailLookUp(userEmail, users);
   //console.log(userEmail, userPassword, user)
   if (!user) {
     res.status(403).send({ error: "Enter valid email" });
@@ -202,4 +185,3 @@ app.post('/login', (req, res) => {
   return res.redirect("/urls");
 });
 
-  
