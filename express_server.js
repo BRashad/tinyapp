@@ -29,28 +29,24 @@ app.get("/urls", (req, res) => {
   return res.render("urls_index", templateVars);
 });
 
+//loop over the user used in DELETE and EDIT links routes
 const urlsForUser = (id) => {
   const result = {};
   for (let i in urlDatabase) {
-    if(urlDatabase[i]['userID'] === id) {
-      result[i] = urlDatabase[i];    
+    if (urlDatabase[i]['userID'] === id) {
+      result[i] = urlDatabase[i];
     }
   }
   return result;
-}
+};
 
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
-
-//renders new page
+//register new user ?
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_Id'];
   const currentUser = users[userId];
   const templateVars = { currentUser: currentUser };
   return res.render("urls_new", templateVars);
 });
-
 
 //show url
 app.get("/urls/:shortURL", (req, res) => {
@@ -59,7 +55,6 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL, currentUser: currentUser };
   return res.render("urls_show", templateVars);
 });
-
 
 app.post("/urls", (req, res) => {
   const userId = req.cookies["user_Id"];
@@ -80,31 +75,29 @@ app.get("/u/:shortURL", (req, res) => {
   return res.redirect(longURL);
 });
 
-
-//delete URL
+//DELETE URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const urlToDelete = req.params.shortURL;
   const userId = req.cookies["user_Id"];
-  console.log("userId", userId)
+  console.log("userId", userId);
   const myUrl = urlsForUser(userId);
-  let theurl = myUrl[urlToDelete]
-  if(theurl) {
+  let theurl = myUrl[urlToDelete];
+  if (theurl) {
     delete urlDatabase[urlToDelete];
   }
   return res.redirect("/urls");
-})
+});
   
-
 //EDIT URL
 app.post("/urls/:shortURL", (req, res) => {
   const userId = req.cookies["user_Id"];
   const shortUrl = req.params.shortURL;
   const myUrl = urlsForUser(userId);
-  let theurl = myUrl[shortUrl]
+  let theurl = myUrl[shortUrl];
 
   const newLongUrl = req.body.longURL;
-  if(theurl) {
-     urlDatabase[shortUrl].longURL = newLongUrl;
+  if (theurl) {
+    urlDatabase[shortUrl].longURL = newLongUrl;
   }
   return res.redirect('/urls');
 });
@@ -115,18 +108,18 @@ app.post("/logout", (req, res) => {
 });
 
 // user database
-const users = { 
+const users = {
   "qwerqwetw": {
-    id: "user1RandomID", 
-    email: "user1@example.com", 
+    id: "user1RandomID",
+    email: "user1@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 //register page rendering
 app.get('/register',(req,res)=>{
@@ -137,19 +130,19 @@ app.get('/register',(req,res)=>{
 const emailLookUp = (email) => {
   
   for (let i in users) {
-    if(users[i]['email'] === email) {
-      return users[i];    
+    if (users[i]['email'] === email) {
+      return users[i];
     }
   }
   return false;
-}
+};
 
 //user registration handler
 app.post('/register',(req,res)=>{
 
-  if (req.body.email === '' || req.body.password ==='') {
+  if (req.body.email === '' || req.body.password === '') {
     return res.status(400).send({ error: "Enter valid username or password" });
-  } 
+  }
   if (emailLookUp(req.body.email)) {
     return res.status(400).send({ error: "Email already exist. Please enter valid email" });
   }
@@ -167,14 +160,14 @@ app.get('/login',(req,res)=>{
   return res.render('login');
 });
 
-//login validation 
+//login validation
 app.post('/login', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
    
   const user = emailLookUp(userEmail);
 
-  if(!user) {
+  if (!user) {
     res.status(403).send({ error: "Enter valid email" });
 
     return;
@@ -186,6 +179,6 @@ app.post('/login', (req, res) => {
   }
   res.cookie("user_Id", user['id']);
   return res.redirect("/urls");
-  });
+});
 
   
