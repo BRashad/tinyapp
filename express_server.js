@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: ['keys[0]'],
-}))
+}));
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -39,9 +39,9 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const userId = req.session['user_Id'];
   const currentUser = users[userId];
-  if(currentUser){
+  if (currentUser) {
     const templateVars = { currentUser: currentUser };
-   return res.render("urls_new", templateVars);
+    return res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
   }
@@ -156,7 +156,7 @@ app.post('/register',(req,res)=>{
   const hashedPassword = bcrypt.hashSync(password, 10);
   const createUser = { id: userRandomId, email: req.body.email, password: hashedPassword };
   users[userRandomId] = createUser;
-  console.log()
+  console.log();
   req.session.user_Id = userRandomId;
   return res.redirect('/urls');
 });
@@ -178,7 +178,7 @@ app.post('/login', (req, res) => {
 
     return;
   }
-  console.log(user['email'], user['password'], userPassword)
+  console.log(user['email'], user['password'], userPassword);
 
 
   if (user['email'] && !bcrypt.compareSync(userPassword, user['password'])) {
