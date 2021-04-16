@@ -162,13 +162,13 @@ app.post('/login', (req, res) => {
   return res.redirect("/urls");
   });
 
-  // const urlsForUser = (id) => {
-  //   for (let i in users) {
-  //     if(users[i]['id'] === id) {
-  //       return users[i];    
-  //     }
-  //   }
-  //   return false;
-  // }
+  const urlsForUser = (id) => {
+    for (let i in users) {
+      if(users[i]['id'] === id) {
+        return users[i];    
+      }
+    }
+    return false;
+  }
 
-  // urlsForUser('user1RandomID');
+  urlsForUser('user1RandomID');
