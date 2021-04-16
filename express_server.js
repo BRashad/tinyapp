@@ -1,12 +1,15 @@
 const express = require("express");
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['keys[0]'],
+}))
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -24,7 +27,7 @@ app.listen(PORT, () => {
 
 //renders index page
 app.get("/urls", (req, res) => {
-  const userId = req.cookies['user_Id'];
+  const userId = req.session['user_Id'];
   const currentUser = users[userId];
   const templateVars = { urls: urlDatabase, currentUser: currentUser, userId: userId };
   return res.render("urls_index", templateVars);
@@ -32,7 +35,7 @@ app.get("/urls", (req, res) => {
 
 //register new user ?
 app.get("/urls/new", (req, res) => {
-  const userId = req.cookies['user_Id'];
+  const userId = req.session['user_Id'];
   const currentUser = users[userId];
   const templateVars = { currentUser: currentUser };
   return res.render("urls_new", templateVars);
@@ -40,14 +43,14 @@ app.get("/urls/new", (req, res) => {
 
 //show url
 app.get("/urls/:shortURL", (req, res) => {
-  const userId = req.cookies['user_Id'];
+  const userId = req.session['user_Id'];
   const currentUser = users[userId];
   const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL, currentUser: currentUser };
   return res.render("urls_show", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  const userId = req.cookies["user_Id"];
+  const userId = req.session["user_Id"];
   const shortUrl = generateRandomString();
   urlDatabase[shortUrl] = { longURL: req.body.longURL, userID: userId };
   return res.redirect(`/urls/${shortUrl}`);
@@ -79,7 +82,7 @@ const urlsForUser = (id) => {
 //DELETE URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const urlToDelete = req.params.shortURL;
-  const userId = req.cookies["user_Id"];
+  const userId = req.session["user_Id"];
   console.log("userId", userId);
   const myUrl = urlsForUser(userId);
   let theurl = myUrl[urlToDelete];
@@ -91,7 +94,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   
 //EDIT URL
 app.post("/urls/:shortURL", (req, res) => {
-  const userId = req.cookies["user_Id"];
+  const userId = req.session["user_Id"];
   const shortUrl = req.params.shortURL;
   const myUrl = urlsForUser(userId);
   let theurl = myUrl[shortUrl];
@@ -104,7 +107,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_Id');
+  delete req.session["user_Id"];
   return res.redirect('/urls');
 });
 
@@ -156,7 +159,7 @@ app.post('/register',(req,res)=>{
   const createUser = { id: userRandomId, email: req.body.email, password: hashedPassword };
   users[userRandomId] = createUser;
   console.log()
-  res.cookie("user_Id", userRandomId);
+  req.session.user_Id = userRandomId;
   return res.redirect('/urls');
 });
 
@@ -185,7 +188,7 @@ app.post('/login', (req, res) => {
 
     return;
   }
-  res.cookie("user_Id", user['id']);
+  req.session.user_Id = user['id'];
   return res.redirect("/urls");
 });
 
