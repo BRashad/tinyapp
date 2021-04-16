@@ -29,6 +29,16 @@ app.get("/urls", (req, res) => {
   return res.render("urls_index", templateVars);
 });
 
+const urlsForUser = (id) => {
+  const result = {};
+  for (let i in urlDatabase) {
+    if(urlDatabase[i]['userID'] === id) {
+      result[i] = urlDatabase[i];    
+    }
+  }
+  return result;
+}
+
 // app.get("/hello", (req, res) => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 // });
@@ -70,16 +80,32 @@ app.get("/u/:shortURL", (req, res) => {
   return res.redirect(longURL);
 });
 
+
+//delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const urlToDelete = req.params.shortURL;
-  delete urlDatabase[urlToDelete];
+  const userId = req.cookies["user_Id"];
+  console.log("userId", userId)
+  const myUrl = urlsForUser(userId);
+  let theurl = myUrl[urlToDelete]
+  if(theurl) {
+    delete urlDatabase[urlToDelete];
+  }
   return res.redirect("/urls");
-});
+})
+  
 
+//EDIT URL
 app.post("/urls/:shortURL", (req, res) => {
   const userId = req.cookies["user_Id"];
   const shortUrl = req.params.shortURL;
-  urlDatabase[shortUrl] = req.body.longURL;
+  const myUrl = urlsForUser(userId);
+  let theurl = myUrl[shortUrl]
+
+  const newLongUrl = req.body.longURL;
+  if(theurl) {
+     urlDatabase[shortUrl].longURL = newLongUrl;
+  }
   return res.redirect('/urls');
 });
 
@@ -162,15 +188,4 @@ app.post('/login', (req, res) => {
   return res.redirect("/urls");
   });
 
-  const urlsForUser = (id) => {
-    for (let i in users) {
-      
-      if(users[i]['id'] === id) {
-        console.log("urlsForUser",users[i]['id'] === id)
-        return users[i];    
-      }
-    }
-    return false;
-  }
-
-  urlsForUser('user1RandomID');
+  
