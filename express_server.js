@@ -39,8 +39,13 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const userId = req.session['user_Id'];
   const currentUser = users[userId];
-  const templateVars = { currentUser: currentUser };
-  return res.render("urls_new", templateVars);
+  if(currentUser){
+    const templateVars = { currentUser: currentUser };
+   return res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
+  
 });
 
 //show url
