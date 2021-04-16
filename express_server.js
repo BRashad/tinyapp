@@ -14,7 +14,7 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  return res.send("Hello!");
 });
 
 app.listen(PORT, () => {
@@ -26,7 +26,7 @@ app.get("/urls", (req, res) => {
   const userId = req.cookies['user_Id'];
   const currentUser = users[userId];
   const templateVars = { urls: urlDatabase, currentUser: currentUser, userId: userId };
-  res.render("urls_index", templateVars);
+  return res.render("urls_index", templateVars);
 });
 
 // app.get("/hello", (req, res) => {
@@ -38,7 +38,7 @@ app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_Id'];
   const currentUser = users[userId];
   const templateVars = { currentUser: currentUser };
-  res.render("urls_new", templateVars);
+  return res.render("urls_new", templateVars);
 });
 
 
@@ -47,7 +47,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const userId = req.cookies['user_Id'];
   const currentUser = users[userId];
   const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL, currentUser: currentUser };
-  res.render("urls_show", templateVars);
+  return res.render("urls_show", templateVars);
 });
 
 
@@ -55,7 +55,7 @@ app.post("/urls", (req, res) => {
   const userId = req.cookies["user_Id"];
   const shortUrl = generateRandomString();
   urlDatabase[shortUrl] = { longURL: req.body.longURL, userID: userId };
-  res.redirect(`/urls/${shortUrl}`);
+  return res.redirect(`/urls/${shortUrl}`);
 });
 
 //generating random string for short url
@@ -67,25 +67,25 @@ const generateRandomString = () => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]['longURL'];
   console.log(longURL);
-  res.redirect(longURL);
+  return res.redirect(longURL);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const urlToDelete = req.params.shortURL;
   delete urlDatabase[urlToDelete];
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   const userId = req.cookies["user_Id"];
   const shortUrl = req.params.shortURL;
   urlDatabase[shortUrl] = req.body.longURL;
-  res.redirect('/urls');
+  return res.redirect('/urls');
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie('user_Id');
-  res.redirect('/urls');
+  return res.redirect('/urls');
 });
 
 // user database
@@ -104,7 +104,7 @@ const users = {
 
 //register page rendering
 app.get('/register',(req,res)=>{
-  res.render("register");
+  return res.render("register");
 });
 
 //email look up function
@@ -122,10 +122,10 @@ const emailLookUp = (email) => {
 app.post('/register',(req,res)=>{
 
   if (req.body.email === '' || req.body.password ==='') {
-    res.status(400).send({ error: "Enter valid username or password" });
+    return res.status(400).send({ error: "Enter valid username or password" });
   } 
   if (emailLookUp(req.body.email)) {
-    res.status(400).send({ error: "Email already exist. Please enter valid email" });
+    return res.status(400).send({ error: "Email already exist. Please enter valid email" });
   }
 
   let userRandomId = generateRandomString();
@@ -133,12 +133,12 @@ app.post('/register',(req,res)=>{
   users[userRandomId] = createUser;
   
   res.cookie("user_Id", userRandomId);
-  res.redirect('/urls');
+  return res.redirect('/urls');
 });
 
 //login page rendering
 app.get('/login',(req,res)=>{
-  res.render('login');
+  return res.render('login');
 });
 
 //login validation 
@@ -147,17 +147,28 @@ app.post('/login', (req, res) => {
   const userPassword = req.body.password;
    
   const user = emailLookUp(userEmail);
+
   if(!user) {
     res.status(403).send({ error: "Enter valid email" });
-    res.redirect("/login");
+
     return;
   }
   if (user['email'] && user['password'] !== userPassword) {
     res.status(403).send({ error: "Enter valid password" });
-    res.redirect("/login");
+
     return;
   }
   res.cookie("user_Id", user['id']);
-  res.redirect("/urls");
+  return res.redirect("/urls");
+  });
 
-  })
+  // const urlsForUser = (id) => {
+  //   for (let i in users) {
+  //     if(users[i]['id'] === id) {
+  //       return users[i];    
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  // urlsForUser('user1RandomID');
