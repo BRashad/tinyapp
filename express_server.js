@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
@@ -28,17 +29,6 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, currentUser: currentUser, userId: userId };
   return res.render("urls_index", templateVars);
 });
-
-//loop over the user used in DELETE and EDIT links routes
-const urlsForUser = (id) => {
-  const result = {};
-  for (let i in urlDatabase) {
-    if (urlDatabase[i]['userID'] === id) {
-      result[i] = urlDatabase[i];
-    }
-  }
-  return result;
-};
 
 //register new user ?
 app.get("/urls/new", (req, res) => {
@@ -74,6 +64,17 @@ app.get("/u/:shortURL", (req, res) => {
   console.log(longURL);
   return res.redirect(longURL);
 });
+
+//loop over the user used in DELETE and EDIT links routes
+const urlsForUser = (id) => {
+  const result = {};
+  for (let i in urlDatabase) {
+    if (urlDatabase[i]['userID'] === id) {
+      result[i] = urlDatabase[i];
+    }
+  }
+  return result;
+};
 
 //DELETE URL
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -148,9 +149,13 @@ app.post('/register',(req,res)=>{
   }
 
   let userRandomId = generateRandomString();
-  const createUser = { id: userRandomId, email: req.body.email, password: req.body.password };
-  users[userRandomId] = createUser;
   
+  const password = req.body.password;
+  
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  const createUser = { id: userRandomId, email: req.body.email, password: hashedPassword };
+  users[userRandomId] = createUser;
+  console.log()
   res.cookie("user_Id", userRandomId);
   return res.redirect('/urls');
 });
@@ -166,13 +171,16 @@ app.post('/login', (req, res) => {
   const userPassword = req.body.password;
    
   const user = emailLookUp(userEmail);
-
+  //console.log(userEmail, userPassword, user)
   if (!user) {
     res.status(403).send({ error: "Enter valid email" });
 
     return;
   }
-  if (user['email'] && user['password'] !== userPassword) {
+  console.log(user['email'], user['password'], userPassword)
+
+
+  if (user['email'] && !bcrypt.compareSync(userPassword, user['password'])) {
     res.status(403).send({ error: "Enter valid password" });
 
     return;
