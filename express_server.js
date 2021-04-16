@@ -131,11 +131,21 @@ app.get('/register',(req,res)=>{
 });
 
 //email look up function
-const emailLookUp = (email) => {
+// const emailLookUp = (email) => {
   
-  for (let i in users) {
-    if (users[i]['email'] === email) {
-      return users[i];
+//   for (let i in users) {
+//     if (users[i]['email'] === email) {
+//       return users[i];
+//     }
+//   }
+//   return false;
+// };
+
+const emailLookUp = (email, database) => {
+  
+  for (let user in database) {
+    if (database[user]['email'] === email) {
+      return database[user];
     }
   }
   return false;
@@ -147,7 +157,7 @@ app.post('/register',(req,res)=>{
   if (req.body.email === '' || req.body.password === '') {
     return res.status(400).send({ error: "Enter valid username or password" });
   }
-  if (emailLookUp(req.body.email)) {
+  if (emailLookUp(req.body.email, users)) {
     return res.status(400).send({ error: "Email already exist. Please enter valid email" });
   }
 
@@ -173,7 +183,7 @@ app.post('/login', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
    
-  const user = emailLookUp(userEmail);
+  const user = emailLookUp(userEmail, users);
   //console.log(userEmail, userPassword, user)
   if (!user) {
     res.status(403).send({ error: "Enter valid email" });
